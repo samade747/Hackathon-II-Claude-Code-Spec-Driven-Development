@@ -358,5 +358,5 @@ def test_cli_complete_task(run_cli_command, capsys, mock_datetime_utcnow):
 
 def test_cli_complete_task_non_existent(run_cli_command, capsys):
     out, err = run_cli_command(complete_task_command, ["complete", "non-existent-id"], capsys)
-    assert "Error completing task: Task with ID non-existent-id not found." in err
+    assert "Error completing task: Invalid UUID: non-existent-id" in err
     assert not out
