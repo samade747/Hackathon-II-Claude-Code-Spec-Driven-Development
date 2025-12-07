@@ -32,25 +32,39 @@ Use `dataclasses.dataclass` for `Task` model with fields:
 
 ## Modules & Responsibilities
 
-- `src/todo/models.py` — Task dataclass.
-- `src/todo/storage.py` — In-memory store API:
-  - add_task()
-  - delete_task()
-  - update_task()
-  - list_tasks()
-  - get_task()
-  - search_tasks()
-- `src/todo/cli.py` — CLI entrypoint using `argparse` with subcommands.
+- `src/todo/models.py` — Task dataclass with rich formatting helpers.
+- `src/todo/storage.py` — Storage implementations:
+  - `InMemoryStorage` — In-memory storage (data lost on exit, per original spec)
+  - `FileStorage` — JSON file persistence (data persists across sessions)
+  - Both implement same interface for consistency
+- `src/todo/cli.py` — CLI entrypoint using `argparse` with subcommands and rich UI.
 - `src/todo/utils.py` — helper functions: now_iso(), parse_tags(), validate_priority(), validate_uuid().
 - `tests/test_todo.py` — pytest suite covering acceptance tests.
 
 ## CLI Behaviour Examples
 
-- `todo add "Buy milk" --description "2 liters" --priority high --tags personal,shopping --due 2025-12-10T09:00:00Z`
-- `todo list --filter status=pending --sort due_date --json`
-- `todo update <id> --title "New title"`
-- `todo delete <id>`
-- `todo complete <id>`
+### Basic Commands
+- `python -m src.todo.cli add "Buy milk" --description "2 liters" --priority high --tags personal,shopping --due 2025-12-10T09:00:00Z`
+- `python -m src.todo.cli list --filter status=pending --sort due_date`
+- `python -m src.todo.cli update <id> --title "New title" --priority high`
+- `python -m src.todo.cli delete <id>`
+- `python -m src.todo.cli complete <id>`
+
+### Advanced Options
+- `python -m src.todo.cli --storage memory list` — Use in-memory storage (data not persisted)
+- `python -m src.todo.cli --storage file list` — Use file storage (default, data persisted)
+- `python -m src.todo.cli list --format rich` — Rich formatted output with colors and tables (default)
+- `python -m src.todo.cli list --format json` — JSON output for scripting
+- `python -m src.todo.cli list --format plain` — Plain text output
+
+### Rich UI Features
+- Task listings displayed in colorful tables
+- Success messages in green with ✓ emoji
+- Error messages in red with ✗ emoji
+- Status shown with emojis: [ ] pending, [✓] completed
+- Priority color-coded: high=red, medium=yellow, low=green
+- Interactive TUI mode: `python -m src.agent.tui`
+
 
 ## Acceptance Tests (high-level)
 
