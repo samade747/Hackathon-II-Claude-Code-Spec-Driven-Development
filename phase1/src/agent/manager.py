@@ -53,3 +53,56 @@ class TodoManager(Agent):
             
         else:
             return f"I didn't understand that. Try 'help'. (Simulated Agent Logic)"
+
+import src.agent.sys_skills as sys_skills
+
+class SysAdminAgent(Agent):
+    def __init__(self):
+        super().__init__(
+            name="SysAdmin",
+            persona="You are a system administrator responsible for file management and system operations."
+        )
+        self._load_skills()
+        
+    def _load_skills(self):
+        self.add_skill(Skill.from_callable(sys_skills.read_file))
+        self.add_skill(Skill.from_callable(sys_skills.write_file))
+        self.add_skill(Skill.from_callable(sys_skills.list_directory))
+        self.add_skill(Skill.from_callable(sys_skills.run_shell_command))
+        self.add_skill(Skill.from_callable(sys_skills.grep_search))
+        self.add_skill(Skill.from_callable(sys_skills.find_files))
+
+    def run(self, user_input: str) -> str:
+        """
+        Simple dispatcher for SysAdmin.
+        """
+        args = user_input.split()
+        if not args: return "Command required."
+        cmd = args[0].lower()
+        
+        if cmd == "ls":
+            path = args[1] if len(args) > 1 else "."
+            return self.get_skill("list_directory")(path=path)
+        elif cmd == "read":
+            if len(args) < 2: return "File path required."
+            return self.get_skill("read_file")(path=args[1])
+        elif cmd == "write":
+            if len(args) < 3: return "Path and content required."
+            # naive parsing
+            path = args[1]
+            content = " ".join(args[2:])
+            return self.get_skill("write_file")(path=path, content=content)
+        elif cmd == "run":
+            if len(args) < 2: return "Command required."
+            shell_cmd = " ".join(args[1:])
+            return self.get_skill("run_shell_command")(command=shell_cmd)
+        elif cmd == "find":
+            if len(args) < 2: return "Pattern required."
+            return self.get_skill("find_files")(pattern=args[1])
+        elif cmd == "grep":
+            if len(args) < 2: return "Query required."
+            return self.get_skill("grep_search")(query=args[1])
+        elif cmd == "help":
+            return self.list_skills()
+        else:
+            return "Unknown command. Try 'ls', 'read', 'write', 'run', 'find', 'grep', 'help'."
