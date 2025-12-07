@@ -5,6 +5,87 @@ import json
 from pathlib import Path
 import os
 
+class InMemoryStorage:
+    """
+    In-memory storage implementation for tasks.
+    Data is not persisted and will be lost when the program exits.    
+    This is the original spec-compliant storage backend for Phase I.
+    """
+    def __init__(self):
+        self._tasks: Dict[str, Task] = {}
+
+    def add_task(self, task: Task) -> None:
+        """Add a new task to storage."""
+        if not task.title:
+            raise ValueError("Task title cannot be empty.")
+        if task.id in self._tasks:
+            raise ValueError(f"Task with ID {task.id} already exists.")
+        self._tasks[task.id] = task
+
+    def delete_task(self, task_id: str) -> None:
+        """Delete a task by ID."""
+        if task_id not in self._tasks:
+            raise KeyError(f"Task with ID {task_id} not found.")
+        del self._tasks[task_id]
+
+    def update_task(self, task_id: str, **kwargs) -> Task:
+        """Update a task's fields."""
+        if task_id not in self._tasks:
+            raise KeyError(f"Task with ID {task_id} not found.")
+
+        task = self._tasks[task_id]
+        updated = False
+        for key, value in kwargs.items():
+            if hasattr(task, key):
+                if key == 'priority':
+                    validate_priority(value)
+                setattr(task, key, value)
+                updated = True
+        
+        if updated:
+            task.modified_at = now_iso()
+        return task
+
+    def list_tasks(self) -> List[Task]:
+        """List all tasks, sorted by completion status and creation date."""
+        return sorted(list(self._tasks.values()), 
+                     key=lambda task: (task.status == 'completed', task.created_at))
+
+    def get_task(self, task_id: str) -> Task:
+        """Get a single task by ID."""
+        if task_id not in self._tasks:
+            raise KeyError(f"Task with ID {task_id} not found.")
+        return self._tasks[task_id]
+
+    def search_tasks(
+        self,
+        query: Optional[str] = None,
+        status: Optional[str] = None,
+        priority: Optional[str] = None,
+        tags: Optional[List[str]] = None
+    ) -> List[Task]:
+        """Search tasks with optional filters."""
+        results = []
+        for task in self._tasks.values():
+            match = True
+            if query:
+                if query.lower() not in task.title.lower() and \
+                   (task.description is None or query.lower() not in task.description.lower()):
+                    match = False
+            if status and task.status != status:
+                match = False
+            if priority and task.priority != priority:
+                match = False
+            if tags and not any(tag in task.tags for tag in tags):
+                match = False
+            
+            if match:
+                results.append(task)
+        
+        return sorted(results, key=lambda task: (task.status == 'completed', task.created_at))
+
+
+
 class FileStorage:
     def __init__(self):
         self._storage_dir = Path.home() / ".todo_cli"

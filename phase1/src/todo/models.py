@@ -27,3 +27,18 @@ class Task:
             "modified_at": self.modified_at,
             "due_date": self.due_date,
         }
+    
+    def get_status_emoji(self) -> str:
+        """Get emoji representation of task status."""
+        return "✓" if self.status == "completed" else " "
+    
+    def get_priority_color(self) -> str:
+        """Get color name for task priority."""
+        if self.priority == "high":
+            return "red"
+        elif self.priority == "medium":
+            return "yellow"
+        elif self.priority == "low":
+            return "green"
+        return "white"
+

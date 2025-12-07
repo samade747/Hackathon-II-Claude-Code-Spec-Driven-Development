@@ -192,6 +192,9 @@ def run_cli_command():
         MockArgs = type('MockArgs', (object,), {})
         args = MockArgs()
         
+        # All commands need format attribute now
+        args.format = 'plain'  # Use plain format for tests to avoid rich formatting
+        
         # Dynamically populate args based on the expected arguments of the command_func
         # This is a simplification; a real parser would handle defaults, types, etc.
         # For direct function calls, we just need to ensure the args object has the right attributes.
@@ -209,11 +212,10 @@ def run_cli_command():
         elif command_func == list_tasks_command:
             args.filter = None
             args.sort = None
-            args.json = False
             for i in range(len(args_list)):
                 if args_list[i] == "--filter": args.filter = args_list[i+1]
                 if args_list[i] == "--sort": args.sort = args_list[i+1]
-                if args_list[i] == "--json": args.json = True
+                if args_list[i] == "--json": args.format = 'json'
         elif command_func == update_task_command:
             args.id = args_list[1]
             args.title = None

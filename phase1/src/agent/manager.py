@@ -15,12 +15,15 @@ class TodoManager(Agent):
         self.add_skill(Skill.from_callable(skills.list_tasks))
         self.add_skill(Skill.from_callable(skills.complete_task))
         self.add_skill(Skill.from_callable(skills.delete_task))
+        self.add_skill(Skill.from_callable(skills.search_tasks))
+        self.add_skill(Skill.from_callable(skills.update_task))
+        self.add_skill(Skill.from_callable(skills.get_task_details))
+        self.add_skill(Skill.from_callable(skills.get_statistics))
 
     def run(self, user_input: str) -> str:
         """
-        Simple heuristic-based dispatcher for demonstration.
-        In a real AI implementation, this would use an LLM to decide which tool to call 
-        and extract parameters from `user_input`.
+        Enhanced command dispatcher with improved natural language understanding.
+        In a production system, this would use an LLM for intent recognition.
         """
         args = user_input.split()
         if not args:
@@ -28,31 +31,45 @@ class TodoManager(Agent):
 
         command = args[0].lower()
         
-        # Simple parser for demonstration
-        if command == "add":
-            # join the rest as title, very basic
+        # Natural language aliases
+        if command in ["add", "create", "new"]:
             title = " ".join(args[1:])
-            if not title: return "Title required."
+            if not title: return "Title required. Usage: add <task title>"
             return self.get_skill("add_task")(title=title)
             
-        elif command == "list":
-            # check for simple filters
+        elif command in ["list", "show", "ls"]:
             status = "completed" if "completed" in args else ("pending" if "pending" in args else None)
             return self.get_skill("list_tasks")(status=status)
+        
+        elif command in ["search", "find"]:
+            if len(args) < 2: return "Search query required. Usage: search <query>"
+            query = " ".join(args[1:])
+            return self.get_skill("search_tasks")(query=query)
             
-        elif command == "complete":
-            if len(args) < 2: return "Task ID required."
+        elif command in ["complete", "done", "finish"]:
+            if len(args) < 2: return "Task ID required. Usage: complete <task-id>"
             return self.get_skill("complete_task")(task_id=args[1])
+        
+        elif command in ["update", "edit", "modify"]:
+            if len(args) < 2: return "Task ID required. Usage: update <task-id> [field=value...]"
+            return self.get_skill("update_task")(task_id=args[1])
             
-        elif command == "delete":
-            if len(args) < 2: return "Task ID required."
+        elif command in ["delete", "remove", "rm"]:
+            if len(args) < 2: return "Task ID required. Usage: delete <task-id>"
             return self.get_skill("delete_task")(task_id=args[1])
+        
+        elif command in ["details", "info", "view"]:
+            if len(args) < 2: return "Task ID required. Usage: details <task-id>"
+            return self.get_skill("get_task_details")(task_id=args[1])
+        
+        elif command in ["stats", "statistics", "summary"]:
+            return self.get_skill("get_statistics")()
 
-        elif command == "help":
+        elif command in ["help", "?"]:
             return self.list_skills()
             
         else:
-            return f"I didn't understand that. Try 'help'. (Simulated Agent Logic)"
+            return f"Unknown command '{command}'. Try 'help' to see available commands."
 
 import src.agent.sys_skills as sys_skills
 

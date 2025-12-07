@@ -42,4 +42,4 @@ def test_manager_help(mock_storage):
 def test_manager_unknown_command(mock_storage):
     agent = TodoManager()
     response = agent.run("dance")
-    assert "I didn't understand that" in response
+    assert "Unknown command" in response
