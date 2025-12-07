@@ -15,17 +15,11 @@ from src.todo.cli import storage, add_task, list_tasks_command, update_task_comm
 # Mock datetime for deterministic tests
 @pytest.fixture
 def mock_datetime_utcnow(): 
-    # Patch now_iso in both models (for Task creation) and storage (for modified_at)
-    with patch('src.todo.models.now_iso') as mock_now_iso_models, \
-         patch('src.todo.storage.now_iso') as mock_now_iso_storage:
-
-        fixed_time = datetime(2025, 12, 7, 10, 0, 0, tzinfo=timezone.utc)
-        fixed_time_iso = fixed_time.isoformat(timespec='seconds').replace('+00:00', 'Z')
-        
-        mock_now_iso_models.return_value = fixed_time_iso
-        mock_now_iso_storage.return_value = fixed_time_iso
-        
-        yield
+    # Patch datetime in utils because that's directly used by now_iso
+    fixed_time = datetime(2025, 12, 7, 10, 0, 0, tzinfo=timezone.utc)
+    with patch('src.todo.utils.datetime') as mock_datetime:
+        mock_datetime.now.return_value = fixed_time
+        yield mock_datetime
 
 # --- Test Task Dataclass ---
 def test_task_creation(mock_datetime_utcnow):
@@ -114,13 +108,13 @@ def test_storage_update_task(mock_datetime_utcnow):
     storage.add_task(task1)
     
     # Advance time for modified_at
-    with patch('src.todo.storage.now_iso') as mock_now_iso_for_update:
-        mock_now_iso_for_update.return_value = datetime(2025, 12, 7, 11, 0, 0, tzinfo=timezone.utc).isoformat(timespec='seconds').replace('+00:00', 'Z')
-        updated_task = storage.update_task(task1.id, title="New Title", description="New Desc", priority="high")
-        assert updated_task.title == "New Title"
-        assert updated_task.description == "New Desc"
-        assert updated_task.priority == "high"
-        assert updated_task.modified_at == "2025-12-07T11:00:00Z"
+    # Advance time for modified_at
+    mock_datetime_utcnow.now.return_value = datetime(2025, 12, 7, 11, 0, 0, tzinfo=timezone.utc)
+    updated_task = storage.update_task(task1.id, title="New Title", description="New Desc", priority="high")
+    assert updated_task.title == "New Title"
+    assert updated_task.description == "New Desc"
+    assert updated_task.priority == "high"
+    assert updated_task.modified_at == "2025-12-07T11:00:00Z"
 
 def test_storage_update_non_existent_task_raises_error():
     with pytest.raises(KeyError, match="Task with ID non-existent-id not found."):
@@ -310,16 +304,16 @@ def test_cli_update_task(run_cli_command, capsys, mock_datetime_utcnow):
     storage.add_task(task)
     
     # Advance time for modified_at
-    with patch('src.todo.storage.now_iso') as mock_now_iso_for_update:
-        mock_now_iso_for_update.return_value = datetime(2025, 12, 7, 11, 0, 0, tzinfo=timezone.utc).isoformat(timespec='seconds').replace('+00:00', 'Z')
-        out, err = run_cli_command(update_task_command, ["update", task.id, "--title", "Updated Title", "--description", "Updated Desc"], capsys)
-        assert f"Task '{task.id}' updated." in out
-        assert not err
+    # Advance time for modified_at
+    mock_datetime_utcnow.now.return_value = datetime(2025, 12, 7, 11, 0, 0, tzinfo=timezone.utc)
+    out, err = run_cli_command(update_task_command, ["update", task.id, "--title", "Updated Title", "--description", "Updated Desc"], capsys)
+    assert f"Task '{task.id}' updated." in out
+    assert not err
 
-        updated_task = storage.get_task(task.id)
-        assert updated_task.title == "Updated Title"
-        assert updated_task.description == "Updated Desc"
-        assert updated_task.modified_at == "2025-12-07T11:00:00Z"
+    updated_task = storage.get_task(task.id)
+    assert updated_task.title == "Updated Title"
+    assert updated_task.description == "Updated Desc"
+    assert updated_task.modified_at == "2025-12-07T11:00:00Z"
 
 def test_cli_update_task_non_existent(run_cli_command, capsys):
     out, err = run_cli_command(update_task_command, ["update", "non-existent-id", "--title", "New Title"], capsys)
@@ -346,14 +340,13 @@ def test_cli_complete_task(run_cli_command, capsys, mock_datetime_utcnow):
     storage.add_task(task)
     
     # Advance time for modified_at
-    with patch('src.todo.storage.now_iso') as mock_now_iso_for_update:
-        mock_now_iso_for_update.return_value = datetime(2025, 12, 7, 12, 0, 0, tzinfo=timezone.utc).isoformat(timespec='seconds').replace('+00:00', 'Z')
-        out, err = run_cli_command(complete_task_command, ["complete", task.id], capsys)
-        assert f"Task '{task.id}' marked as completed." in out
-        assert not err
-        completed_task = storage.get_task(task.id)
-        assert completed_task.status == "completed"
-        assert completed_task.modified_at == "2025-12-07T12:00:00Z"
+    mock_datetime_utcnow.now.return_value = datetime(2025, 12, 7, 12, 0, 0, tzinfo=timezone.utc)
+    out, err = run_cli_command(complete_task_command, ["complete", task.id], capsys)
+    assert f"Task '{task.id}' marked as completed." in out
+    assert not err
+    completed_task = storage.get_task(task.id)
+    assert completed_task.status == "completed"
+    assert completed_task.modified_at == "2025-12-07T12:00:00Z"
 
 def test_cli_complete_task_non_existent(run_cli_command, capsys):
     out, err = run_cli_command(complete_task_command, ["complete", "non-existent-id"], capsys)
