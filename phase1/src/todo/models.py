@@ -11,6 +11,6 @@ class Task:
     status: Literal['pending', 'completed'] = 'pending'
     priority: Optional[Literal['high', 'medium', 'low']] = 'medium'
     tags: List[str] = field(default_factory=list)
-    created_at: str = field(default_factory=lambda: datetime.utcnow().isoformat(timespec='seconds') + 'Z')
+    created_at: str = field(default_factory=lambda: datetime.now(datetime.UTC).isoformat(timespec='seconds') + 'Z')
     modified_at: Optional[str] = None
     due_date: Optional[str] = None
