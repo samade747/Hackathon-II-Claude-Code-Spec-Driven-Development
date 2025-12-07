@@ -8,7 +8,10 @@ import argparse
 
 from src.todo.models import Task
 from src.todo.utils import now_iso, parse_tags, validate_priority, validate_uuid
-from src.todo.storage import InMemoryStorage
+from src.todo.storage import FileStorage
+import os
+from pathlib import Path
+
 # Import functions directly for testing, not the main entry point
 from src.todo.cli import storage, add_task, list_tasks_command, update_task_command, delete_task_command, complete_task_command 
 
@@ -74,11 +77,15 @@ def test_validate_uuid():
     with pytest.raises(ValueError, match="Invalid UUID: invalid-uuid"):
         validate_uuid("invalid-uuid")
 
-# --- Test InMemoryStorage ---
+# --- Test FileStorage ---
 @pytest.fixture(autouse=True)
 def clear_storage():
     """Clear storage before each test."""
-    storage._tasks.clear()
+    filepath = Path.home() / ".todo_cli" / "tasks.json"
+    if filepath.exists():
+        os.remove(filepath)
+    storage._tasks.clear() # Clear in-memory cache as well
+    storage._load_tasks() # Reload empty tasks after clearing file
     yield
 
 def test_storage_add_task(mock_datetime_utcnow):

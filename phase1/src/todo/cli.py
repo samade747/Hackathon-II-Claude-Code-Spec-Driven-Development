@@ -1,12 +1,12 @@
 import argparse
 import json
 from src.todo.models import Task
-from src.todo.storage import InMemoryStorage
+from src.todo.storage import FileStorage # Changed from InMemoryStorage
 from src.todo.utils import parse_tags, validate_priority, validate_uuid, now_iso
 import sys
 
 # Initialize storage
-storage = InMemoryStorage()
+storage = FileStorage() # Changed from InMemoryStorage
 
 def add_task(args):
     try:
@@ -42,13 +42,8 @@ def list_tasks_command(args):
         tasks.sort(key=lambda task: getattr(task, args.sort, ''))
 
     if args.json:
-        # Convert Task objects to dictionaries for JSON serialization
-        tasks_dicts = []
-        for task in tasks:
-            task_dict = task.__dict__
-            # Convert UUID to string if not already
-            task_dict['id'] = str(task_dict['id'])
-            tasks_dicts.append(task_dict)
+        # Convert Task objects to dictionaries for JSON serialization using to_dict()
+        tasks_dicts = [task.to_dict() for task in tasks]
         print(json.dumps(tasks_dicts, indent=2))
     else:
         if not tasks:

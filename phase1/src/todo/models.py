@@ -14,3 +14,16 @@ class Task:
     created_at: str = field(default_factory=now_iso) # Use now_iso
     modified_at: Optional[str] = None
     due_date: Optional[str] = None
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "title": self.title,
+            "description": self.description,
+            "status": self.status,
+            "priority": self.priority,
+            "tags": self.tags,
+            "created_at": self.created_at,
+            "modified_at": self.modified_at,
+            "due_date": self.due_date,
+        }
