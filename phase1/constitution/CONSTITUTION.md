@@ -64,8 +64,55 @@
 - **Transparency**: Agents must report their actions and results clearly to the user.
 - **Safety**: System-critical operations (deletion, overwriting) require confirmation or revert capabilities.
 
-## UI Standards (Phase IV)
+## UI Standards (CLI)
 - **Terminal First**: The primary interface is the console.
-- **Rich Experience**: Use 
-ich library for dashboards.
-- **Clarity**: Use colors consistently (Green=Success, Red=Error).
+- **Rich Experience**: Use `rich` library for enhanced terminal UI.
+- **Color Consistency**: 
+  - Green = Success messages and completed tasks
+  - Red = Error messages and failures
+  - Yellow = Warnings and pending items
+  - Blue = Informational messages
+  - Cyan = Interactive prompts
+- **Formatting Standards**:
+  - Use rich Tables for task listings
+  - Use rich Panels for detailed task views
+  - Use rich Progress for operations
+  - Use Syntax highlighting for code/JSON output
+  - Add emojis for visual feedback (✓ ✗ ⚠ ℹ)
+- **Output Modes**: Support plain, rich, and JSON output formats
+- **Responsive**: Adapt to terminal width gracefully
+
+## MCP (Model Context Protocol) Integration
+- **Server Connectivity**: Agents can connect to MCP servers for extended capabilities
+- **Resource Access**: Leverage MCP resources for knowledge retrieval
+- **Tool Invocation**: Use MCP tools for specialized operations
+- **Prompt Templates**: Utilize MCP prompts for consistent interactions
+- **Multi-Server**: Support multiple MCP servers simultaneously
+- **Error Handling**: Graceful degradation when servers unavailable
+
+## Reusable Intelligence Patterns
+- **Intelligence Templates**: Create reusable reasoning patterns
+- **Skill Composition**: Combine skills for complex workflows
+- **Context Preservation**: Maintain context across agent interactions
+- **Knowledge Sharing**: Share learned patterns between agents
+- **Adaptive Learning**: Agents improve through use patterns
+- **Template Library**: Maintain library of proven intelligence patterns
+
+## Cloud-Native Architecture Principles
+- **Container First**: All deployments containerized
+- **Orchestration Ready**: Kubernetes-native designs
+- **Infrastructure as Code**: Everything defined as code (Terraform, Helm)
+- **Observability**: Built-in monitoring, logging, tracing
+- **Scalability**: Horizontal scaling by default
+- **Resilience**: Self-healing, fault-tolerant systems
+- **Security**: Zero-trust, secrets management, compliance
+- **CI/CD Native**: Automated pipelines for all changes
+
+## Advanced Agent Capabilities
+- **Multi-Agent Orchestration**: Coordinate multiple specialized agents
+- **Blueprint Generation**: Create infrastructure/deployment blueprints
+- **Code Generation**: Generate production-ready infrastructure code
+- **Best Practices**: Encode industry best practices in agents
+- **Compliance Checking**: Verify against security/compliance standards
+- **Cost Optimization**: Recommend cost-effective solutions
+- **Auto-Documentation**: Generate comprehensive documentation
