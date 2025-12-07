@@ -1,10 +1,10 @@
-from datetime import datetime
+from datetime import datetime, timezone
 import uuid
 from typing import List, Literal
 
 def now_iso() -> str:
     """Returns the current UTC time in ISO 8601 format."""
-    return datetime.utcnow().isoformat(timespec='seconds') + 'Z'
+    return datetime.now(timezone.UTC).isoformat(timespec='seconds').replace('+00:00', 'Z')
 
 def parse_tags(tags_str: str) -> List[str]:
     """Parses a comma-separated string of tags into a list of stripped tag strings."""
