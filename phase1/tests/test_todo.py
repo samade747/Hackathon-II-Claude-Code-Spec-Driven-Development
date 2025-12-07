@@ -1,6 +1,6 @@
 import pytest
 from unittest.mock import patch
-from datetime import datetime
+from datetime import datetime, timezone # Added timezone import
 import json
 import io
 import sys
@@ -15,12 +15,19 @@ from src.todo.cli import storage, add_task, list_tasks_command, update_task_comm
 # Mock datetime.utcnow for deterministic tests
 @pytest.fixture
 def mock_datetime_utcnow():
-    with patch('src.todo.models.datetime') as mock_models_dt, \
-         patch('src.todo.utils.datetime') as mock_utils_dt:
-        mock_models_dt.utcnow.return_value = datetime(2025, 12, 7, 10, 0, 0)
-        mock_models_dt.side_effect = lambda *args, **kw: datetime(*args, **kw) # Allow other datetime calls to work
-        mock_utils_dt.utcnow.return_value = datetime(2025, 12, 7, 10, 0, 0)
-        mock_utils_dt.side_effect = lambda *args, **kw: datetime(*args, **kw)
+    with patch('src.todo.models.datetime.datetime') as mock_model_dt_cls, \
+         patch('src.todo.utils.datetime.datetime') as mock_utils_dt_cls:
+        
+        fixed_time = datetime(2025, 12, 7, 10, 0, 0, tzinfo=timezone.UTC)
+        
+        mock_model_dt_cls.now.return_value = fixed_time
+        mock_model_dt_cls.side_effect = lambda *args, **kw: datetime(*args, **kw)
+        mock_model_dt_cls.UTC = timezone.UTC # Ensure UTC is available on the mocked datetime module
+
+        mock_utils_dt_cls.now.return_value = fixed_time
+        mock_utils_dt_cls.side_effect = lambda *args, **kw: datetime(*args, **kw)
+        mock_utils_dt_cls.UTC = timezone.UTC # Ensure UTC is available on the mocked datetime module
+        
         yield
 
 # --- Test Task Dataclass ---

@@ -1,7 +1,7 @@
 from dataclasses import dataclass, field
 from typing import Optional, Literal, List
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 
 @dataclass
 class Task:
