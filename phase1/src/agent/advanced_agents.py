@@ -9,14 +9,22 @@ import src.agent.intelligence_orchestrator as intelligence
 
 
 class CloudArchitectAgent(Agent):
-    """Advanced agent for cloud-native architecture and blueprint generation."""
+    """
+    Advanced agent for cloud-native architecture and blueprint generation.
+    
+    This agent specializes in generating infrastructure code (IaC) and configuration
+    files for cloud environments. It supports Kubernetes, Docker, Terraform, and CI/CD
+    pipeline generation.
+    """
     
     def __init__(self):
         super().__init__(
             name="CloudArchitect",
-            persona="You are an elite cloud-native architect specializing in Kubernetes, "
-                   "microservices, and infrastructure as code. You generate production-ready "
-                   "blueprints following best practices."
+            persona=(
+                "You are an elite Cloud Architect with a visionary approach to infrastructure. You don't just build servers; "
+                "you design scalable, resilient, and self-healing ecosystems. You speak the language of Kubernetes, "
+                "Terraform, and Cloud Native patterns fluently, always guiding the user towards industry standard best practices."
+            )
         )
         self._load_skills()
     
@@ -30,7 +38,17 @@ class CloudArchitectAgent(Agent):
         self.add_skill(Skill.from_callable(cloud_skills.estimate_cloud_costs))
     
     def run(self, user_input: str) -> str:
-        """Enhanced command dispatcher for cloud architecture."""
+        """
+        Interprets and executes cloud architecture commands.
+        
+        Supported commands:
+        - k8s/kubernetes: Generate K8s deployment manifests
+        - docker/compose: Create Docker Compose files
+        - terraform: Generate Terraform modules
+        - cicd/pipeline: Create GitHub Actions pipelines
+        - monitoring: Generate Prometheus/Grafana stacks
+        - cost/estimate: Estimate cloud resource costs
+        """
         args = user_input.split()
         if not args:
             return "Please provide a cloud architecture command."
@@ -77,13 +95,22 @@ class CloudArchitectAgent(Agent):
 
 
 class MCPIntegrationAgent(Agent):
-    """Agent for MCP server integration."""
+    """
+    Agent for MCP (Model Context Protocol) server integration.
+    
+    This agent manages connections to external MCP servers, allowing the system
+    to discover and utilize tools and resources effectively 'extending' its capabilities
+    at runtime.
+    """
     
     def __init__(self):
         super().__init__(
             name="MCPIntegrator",
-            persona="You are an MCP integration specialist. You connect to MCP servers "
-                   "and leverage their resources, tools, and prompts for enhanced capabilities."
+            persona=(
+                "You are the universal adapter for the AI world. You specialize in the Model Context Protocol, effortlessly "
+                "connecting disparate systems and tools. You see the network of tools as a vast library of capabilities "
+                "waiting to be unlocked and brought to bear on the user's problem."
+            )
         )
         self._load_skills()
     
@@ -97,7 +124,16 @@ class MCPIntegrationAgent(Agent):
         self.add_skill(Skill.from_callable(mcp.mcp_server_status))
     
     def run(self, user_input: str) -> str:
-        """Command dispatcher for MCP operations."""
+        """
+        Manages MCP server interactions.
+        
+        Supported commands:
+        - connect: Connect to a new MCP server
+        - list/resources: List available resources on connected servers
+        - read: Read a specific resource
+        - tool: Invoke an MCP tool
+        - status: Check connection status
+        """
         args = user_input.split()
         if not args:
             return "Please provide an MCP command."
@@ -133,13 +169,22 @@ class MCPIntegrationAgent(Agent):
 
 
 class IntelligenceOrchestratorAgent(Agent):
-    """Agent for orchestrating reusable intelligence."""
+    """
+    Agent for orchestrating reusable intelligence and multi-agent workflows.
+    
+    This agent acts as a 'meta-agent' that can compose skills from other agents
+    into reusable patterns and workflows. It also manages a shared knowledge base
+    allowing agents to share context.
+    """
     
     def __init__(self):
         super().__init__(
             name="IntelligenceOrchestrator",
-            persona="You are a master intelligence orchestrator. You manage patterns, "
-                   "compose skills, and coordinate multi-agent workflows."
+            persona=(
+                "You are the Master Conductor of the agent symphony. You see the big picture, understanding how individual "
+                "agent skills can be woven together to solve complex problems. You are wise, strategic, and efficient, "
+                "always looking for patterns and ways to optimize the collective intelligence of the system."
+            )
         )
         self._load_skills()
     
@@ -154,7 +199,14 @@ class IntelligenceOrchestratorAgent(Agent):
         self.add_skill(Skill.from_callable(intelligence.get_intelligence_summary))
     
     def run(self, user_input: str) -> str:
-        """Command dispatcher for intelligence orchestration."""
+        """
+        Handles orchestration and knowledge management commands.
+        
+        Supported commands:
+        - patterns/list: List available intelligence patterns
+        - compose: Create a new workflow from a sequence of skills
+        - summary: Get a summary of the shared knowledge base
+        """
         args = user_input.split()
         if not args:
             return "Please provide an orchestration command."

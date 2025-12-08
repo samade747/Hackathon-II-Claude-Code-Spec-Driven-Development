@@ -1,16 +1,42 @@
+"""
+Manager agents that handle high-level task coordination and system operations.
+
+This module defines agents that act as managers or administrators, overseeing specific definition domains
+like Todo lists or System files. They are responsible for understanding user commands
+and dispatching them to the appropriate underlying skills.
+"""
 from src.agent.base import Agent, Skill
 import src.agent.skills as skills
 
 class TodoManager(Agent):
+    """
+    Agent responsible for managing the user's Todo list.
+    
+    This agent understands natural language commands related to task management
+    (adding, listing, completing, etc.) and orchestrates the execution of these
+    commands using the available task skills.
+    """
     def __init__(self):
         super().__init__(
             name="TodoManager",
-            persona="You are a helpful and efficient task manager. You allow users to manage their todo list."
+            persona=(
+                "You are a dedicated and proactive productivity partner. Your goal isn't just to manage a list, "
+                "but to help the user clear their mind and focus on what matters. You are organized, encouraging, "
+                "and always ready to help clarify tasks or break them down into manageable steps."
+            )
         )
         self._load_skills()
 
     def _load_skills(self):
-        """Loads available skills from the skills module."""
+        """
+        Registers all task-related skills with the agent.
+        
+        This includes skills for:
+        - creating and listing tasks
+        - updating and completing tasks
+        - searching and deleting tasks
+        - getting statistics
+        """
         self.add_skill(Skill.from_callable(skills.add_task))
         self.add_skill(Skill.from_callable(skills.list_tasks))
         self.add_skill(Skill.from_callable(skills.complete_task))
@@ -22,8 +48,19 @@ class TodoManager(Agent):
 
     def run(self, user_input: str) -> str:
         """
-        Enhanced command dispatcher with improved natural language understanding.
-        In a production system, this would use an LLM for intent recognition.
+        Interprets user input and dispatches to the appropriate task skill.
+        
+        This method implements a command pattern matcher that:
+        1. Parses the first word as the command/intent.
+        2. Matches it against known aliases (e.g., "add", "new" -> add_task).
+        3. Extracts arguments from the rest of the string.
+        4. Invokes the corresponding skill.
+        
+        Args:
+            user_input (str): The raw command string from the user.
+            
+        Returns:
+            str: The result of the executed skill or an error message.
         """
         args = user_input.split()
         if not args:
@@ -74,14 +111,25 @@ class TodoManager(Agent):
 import src.agent.sys_skills as sys_skills
 
 class SysAdminAgent(Agent):
+    """
+    Agent responsible for system administration and file operations.
+    
+    This agent provides a safe(r) interface for performing file system operations
+    like reading, writing, and listing files, as well as running shell commands.
+    """
     def __init__(self):
         super().__init__(
             name="SysAdmin",
-            persona="You are a system administrator responsible for file management and system operations."
+            persona=(
+                "You are a meticulous and reliable System Administrator. You treat the file system with the utmost care, "
+                "always verifying paths and permissions before acting. You value precision and safety above all else, "
+                "ensuring that every operation is safe and intended."
+            )
         )
         self._load_skills()
         
     def _load_skills(self):
+        """Loads filesystem and shell command skills."""
         self.add_skill(Skill.from_callable(sys_skills.read_file))
         self.add_skill(Skill.from_callable(sys_skills.write_file))
         self.add_skill(Skill.from_callable(sys_skills.list_directory))
@@ -91,7 +139,15 @@ class SysAdminAgent(Agent):
 
     def run(self, user_input: str) -> str:
         """
-        Simple dispatcher for SysAdmin.
+        Parses and executes system administration commands.
+        
+        Supports commands for:
+        - ls: List directory contents
+        - read: Read file contents
+        - write: Write to a file
+        - run: Execute shell commands
+        - find: Find files by pattern
+        - grep: Search for text content
         """
         args = user_input.split()
         if not args: return "Command required."
