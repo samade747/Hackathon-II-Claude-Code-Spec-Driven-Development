@@ -1,4 +1,4 @@
-# Evolution of Todo - Hackathon II
+# Evolution of Todo - Hackathon II with Intelligence-orchestrator
 
 ## 🎯 Project Overview
 
