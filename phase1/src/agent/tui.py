@@ -16,9 +16,17 @@ from src.agent.manager import TodoManager, SysAdminAgent
 
 
 class EnhancedTUI:
-    """Enhanced Terminal User Interface with better UX."""
+    """
+    Enhanced Terminal User Interface (TUI) for the Todo Application.
+    
+    This class manages the interactive session, rendering a beautiful
+    command-line interface using the 'rich' library. It maintains the
+    application state (active agent, chat history) and handles the main
+    event loop.
+    """
     
     def __init__(self):
+        """Initialize TUI components, agents, and state."""
         self.console = Console()
         self.todo_agent = TodoManager()
         self.sys_agent = SysAdminAgent()
@@ -56,7 +64,12 @@ class EnhancedTUI:
         self.console.print()
     
     def create_interface(self) -> Layout:
-        """Create the main layout."""
+        """
+        Creates the main three-pane layout (Header, Main, Footer).
+        
+        Returns:
+            Layout: The root layout object ready for rendering.
+        """
         layout = Layout()
         layout.split_column(
             Layout(name="header", size=3),
@@ -182,7 +195,18 @@ class EnhancedTUI:
             self.chat_history.append(f"[bold white]Agent:[/bold white] {agent_response}")
     
     def process_command(self, user_input: str):
-        """Process user command with enhanced handling."""
+        """
+        Process a single command from the user.
+        
+        Handles:
+        - Meta-commands (help, clear, exit, switch)
+        - Agent dispatch (sending input to the active agent)
+        - Output formatting (rendering tables, panels, success/error messages)
+        - History updates
+        
+        Args:
+            user_input (str): The raw command string typed by the user.
+        """
         user_input = user_input.strip()
         
         if not user_input:
@@ -285,7 +309,12 @@ class EnhancedTUI:
             self.add_to_history(user_input, error_msg)
     
     def run(self):
-        """Main TUI loop."""
+        """
+        Starts the main event loop.
+        
+        Continuously prompts for user input and processes commands
+        until the user exits or interrupts.
+        """
         try:
             while self.running:
                 # Get user input with styled prompt

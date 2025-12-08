@@ -10,6 +10,14 @@ from src.todo.models import Task
 from src.todo.storage import FileStorage, InMemoryStorage
 from src.todo.utils import parse_tags, validate_priority, validate_uuid, now_iso
 
+"""
+Command Line Interface (CLI) for the Todo Application.
+
+This module defines the entry point for the application. It uses `argparse` to handle
+subcommands (add, list, update, delete, complete) and `rich` to provide a beautiful
+terminal user interface.
+"""
+
 # Initialize Rich console
 console = Console()
 
@@ -17,14 +25,27 @@ console = Console()
 storage = FileStorage()
 
 def get_storage(storage_type='file'):
-    """Get storage instance based on type."""
+    """
+    Factory function to initialize the storage backend.
+    
+    Args:
+        storage_type (str): 'memory' for ephemeral storage, 'file' for persistent JSON storage.
+        
+    Returns:
+        StorageProtocol: An instance of the requested storage backend.
+    """
     if storage_type == 'memory':
         return InMemoryStorage()
     else:
         return FileStorage()
 
 def format_task_rich(task: Task) -> Panel:
-    """Format a single task as a rich panel."""
+    """
+    Formats a single task into a beautiful Rich Panel.
+    
+    This function handles color-coding based on priority and status (completed tasks use green).
+    It displays all relevant task fields in a structured layout.
+    """
     emoji = task.get_status_emoji()
     priority_color = task.get_priority_color()
     
@@ -44,7 +65,17 @@ Due: {task.due_date or 'No due date'}"""
     return Panel(content, border_style=border_style)
 
 def format_tasks_table(tasks: list[Task]) -> Table:
-    """Format tasks as a rich table."""
+    """
+    Creates a Rich Table for displaying multiple tasks in a list.
+    
+    Columns:
+    - Status (Checkmark)
+    - Title (Strikethrough if completed)
+    - Priority (Color-coded)
+    - Tags
+    - Due Date
+    - Short ID
+    """
     table = Table(title="📋 Tasks", show_header=True, header_style="bold cyan")
     table.add_column("✓", style="green", width=3)
     table.add_column("Title", style="white")
@@ -69,6 +100,12 @@ def format_tasks_table(tasks: list[Task]) -> Table:
     return table
 
 def add_task(args):
+    """
+    Handler for the 'add' command.
+    
+    Creates a new task with the provided arguments and saves it to storage.
+    Prints a success message with the new Task ID.
+    """
     try:
         if args.priority:
             validate_priority(args.priority)
@@ -101,6 +138,12 @@ def add_task(args):
             print(f"An unexpected error occurred: {e}", file=sys.stderr)
 
 def list_tasks_command(args):
+    """
+    Handler for the 'list' command.
+    
+    Retrieves all tasks and applies optional filters (key=value) and sorting.
+    Outputs the result in the requested format (Rich Table, JSON, or Plain Text).
+    """
     tasks = storage.list_tasks()
 
     # Filtering
@@ -141,6 +184,12 @@ def list_tasks_command(args):
             print("-" * 20)
 
 def update_task_command(args):
+    """
+    Handler for the 'update' command.
+    
+    Updates specific fields of an existing task. Validates inputs like Priority and UUID.
+    only fields provided by the user are modified.
+    """
     try:
         validate_uuid(args.id)
         update_fields = {}

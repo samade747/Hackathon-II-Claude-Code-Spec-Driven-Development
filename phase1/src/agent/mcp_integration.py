@@ -9,7 +9,17 @@ import json
 
 @dataclass
 class MCPServer:
-    """Represents an MCP server connection."""
+    """
+    Represents a connection to a specific MCP server.
+    
+    Attributes:
+        name: A unique local alias for this server.
+        url: The connection endpoint (e.g., http/ws or stdio command).
+        connected: Connection state.
+        resources: Cached list of available data resources.
+        tools: Cached list of executable tools.
+        prompts: Cached list of prompt templates.
+    """
     name: str
     url: str
     connected: bool = False
@@ -31,14 +41,18 @@ class MCPClient:
     
     def connect_server(self, name: str, url: str) -> str:
         """
-        Connect to an MCP server.
+        Establishes a simulated connection to an MCP server.
+        
+        Using this method, agents can "connect" to external capabilities.
+        In this mock implementation, it pre-loads simulated resources like specific tools 
+        and prompts that an AI agent might need.
         
         Args:
-            name: Server identifier
-            url: Server URL or connection string
+            name (str): Identifier for the server.
+            url (str): The connection string.
             
         Returns:
-            Connection status message
+            str: Status message detailing discovered capabilities.
         """
         try:
             # In a real implementation, this would establish WebSocket/HTTP connection
@@ -73,13 +87,14 @@ class MCPClient:
     
     def list_resources(self, server_name: Optional[str] = None) -> str:
         """
-        List available MCP resources.
+        Lists data resources exposed by connected servers.
+        Resources are like read-only files or API endpoints that provide context.
         
         Args:
-            server_name: Specific server (None for all)
+            server_name (Optional[str]): If provided, lists only from that server.
             
         Returns:
-            Formatted list of resources
+            str: A formatted list of URIs and names.
         """
         if server_name:
             if server_name not in self.servers:
@@ -101,13 +116,13 @@ class MCPClient:
     
     def read_resource(self, uri: str) -> str:
         """
-        Read content from an MCP resource.
+        Fetches the content of a resource by its URI.
         
         Args:
-            uri: Resource URI
+            uri (str): The unique resource identifier (e.g. server://path/to/resource).
             
         Returns:
-            Resource content
+            str: The text content of the resource.
         """
         # Parse server from URI
         parts = uri.split("://")
@@ -144,15 +159,18 @@ In a real implementation, this would fetch actual content from the MCP server.
     
     def invoke_tool(self, server_name: str, tool_name: str, arguments: Dict[str, Any]) -> str:
         """
-        Invoke an MCP tool.
+        Executes a tool exposed by an MCP server.
+        
+        Tools are executable functions (like 'analyze_task') that take arguments
+        and return a result.
         
         Args:
-            server_name: Server identifier
-            tool_name: Tool name
-            arguments: Tool arguments
+            server_name (str): The server hosting the tool.
+            tool_name (str): The name of the tool.
+            arguments (Dict): Key-value arguments for the tool.
             
         Returns:
-            Tool execution result
+            str: The output of the tool execution.
         """
         if server_name not in self.servers:
             return f"✗ Server '{server_name}' not connected"

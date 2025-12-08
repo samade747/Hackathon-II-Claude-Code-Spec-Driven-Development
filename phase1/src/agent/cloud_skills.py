@@ -14,17 +14,20 @@ def generate_kubernetes_deployment(
     env_vars: Optional[Dict[str, str]] = None
 ) -> str:
     """
-    Generate Kubernetes Deployment manifest.
+    Generates a production-ready Kubernetes Deployment manifest content.
+    
+    This function creates a standard blueprint for a unified deployment,
+    including liveness and readiness probes, resource limits, and environment configuration.
     
     Args:
-        app_name: Application name
-        image: Docker image (e.g., myapp:v1.0.0)
-        replicas: Number of replicas
-        port: Container port
-        env_vars: Environment variables dict
+        app_name (str): The name of the application.
+        image (str): The container image to use.
+        replicas (int): Number of pod replicas.
+        port (int): Internal container port.
+        env_vars (Optional[Dict[str, str]]): Key-value pairs for environment variables.
         
     Returns:
-        YAML manifest as string
+        str: A multi-line string containing the YAML definition.
     """
     env_vars = env_vars or {}
     env_list = [{"name": k, "value": v} for k, v in env_vars.items()]
@@ -96,14 +99,17 @@ def generate_docker_compose(
     network_name: str = "app-network"
 ) -> str:
     """
-    Generate Docker Compose configuration.
+    Generates a `docker-compose.yml` file content for a multi-service application.
+    
+    This blueprint sets up services, networks, volumes, and environment variables
+    suitable for local development or simplified deployments.
     
     Args:
-        services: List of service configurations
-        network_name: Docker network name
+        services (List[Dict[str, Any]]): A list of service definitions (name, image, ports, etc.).
+        network_name (str): The name of the shared Docker network.
         
     Returns:
-        docker-compose.yml content
+        str: The complete docker-compose.yml content.
     """
     compose = f"""version: '3.8'
 
@@ -161,16 +167,20 @@ def generate_terraform_module(
     config: Dict[str, Any]
 ) -> str:
     """
-    Generate Terraform module.
+    Generates a Terraform module for a specific cloud resource.
+    
+    Supported Providers: AWS, Azure, GCP.
+    This creates a `.tf` file content with provider configuration, variable definitions, A
+    resource block, and output definitions.
     
     Args:
-        provider: Cloud provider (aws, azure, gcp)
-        resource_type: Resource type (e.g., 'vpc', 'vm', 'storage')
-        resource_name: Resource identifier
-        config: Resource configuration
+        provider (str): The cloud provider (e.g., 'aws').
+        resource_type (str): The type of resource to create (e.g., 'vpc', 's3_bucket').
+        resource_name (str): The logical name for the resource.
+        config (Dict[str, Any]): Specific configuration parameters for the resource.
         
     Returns:
-        Terraform .tf file content
+        str: Valid HCL (HashiCorp Configuration Language) code.
     """
     tf_content = f"""# Terraform module for {resource_type}
 # Provider: {provider}
@@ -266,15 +276,20 @@ def generate_github_actions_pipeline(
     deploy_target: str = "kubernetes"
 ) -> str:
     """
-    Generate GitHub Actions CI/CD pipeline.
+    Generates a GitHub Actions workflow YAML for CI/CD.
+    
+    This blueprint includes steps for:
+    1. Checkout
+    2. Docker Build & Push
+    3. (Optional) Deployment to Kubernetes
     
     Args:
-        app_name: Application name
-        build_steps: List of build commands
-        deploy_target: Deployment target (kubernetes, docker, aws)
+        app_name (str): Name of the application.
+        build_steps (List[str]): Custom build commands (currently placeholder).
+        deploy_target (str): Target environment (e.g., 'kubernetes').
         
     Returns:
-        GitHub Actions workflow YAML
+        str: GitHub Actions workflow YAML content.
     """
     workflow = f"""name: CI/CD Pipeline - {app_name}
 

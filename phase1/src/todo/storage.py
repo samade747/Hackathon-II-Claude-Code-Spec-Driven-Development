@@ -7,9 +7,11 @@ import os
 
 class InMemoryStorage:
     """
-    In-memory storage implementation for tasks.
-    Data is not persisted and will be lost when the program exits.    
-    This is the original spec-compliant storage backend for Phase I.
+    Volatile, in-memory storage backend.
+    
+    This class stores tasks in a Python dictionary. It is primarily used for
+    testing or for temporary sessions where persistence is not required.
+    All data is lost when the application terminates.
     """
     def __init__(self):
         self._tasks: Dict[str, Task] = {}
@@ -87,6 +89,13 @@ class InMemoryStorage:
 
 
 class FileStorage:
+    """
+    Persistent, file-based storage backend.
+    
+    This class saves tasks to a JSON file in the user's home directory
+    (~/.todo_cli/tasks.json). It ensures that data survives application restarts.
+    It loads data on initialization and saves on every modification.
+    """
     def __init__(self):
         self._storage_dir = Path.home() / ".todo_cli"
         self._storage_dir.mkdir(parents=True, exist_ok=True)
@@ -95,6 +104,7 @@ class FileStorage:
         self._load_tasks()
 
     def _load_tasks(self) -> None:
+        """Loads tasks from the JSON file into memory."""
         if self._filepath.exists():
             try:
                 with open(self._filepath, 'r', encoding='utf-8') as f:
@@ -111,6 +121,7 @@ class FileStorage:
             self._tasks = {}
 
     def _save_tasks(self) -> None:
+        """Persists the current in-memory tasks to the JSON file."""
         with open(self._filepath, 'w', encoding='utf-8') as f:
             json.dump({task_id: task.to_dict() for task_id, task in self._tasks.items()}, f, indent=4)
 

@@ -1,10 +1,25 @@
+"""
+System Administration Skills.
+
+This module provides agents with capability to interact with the underlying operating system.
+It includes skills for file manipulation (read/write), directory listing, and executing shell commands.
+NOTE: These skills should be used with caution as they affect the real file system.
+"""
 import os
 import subprocess
 from glob import glob
 from typing import List
 
 def read_file(path: str) -> str:
-    """Read content of a file."""
+    """
+    Reads the entire content of a file as a string.
+    
+    Args:
+        path: The absolute or relative path to the file.
+        
+    Returns:
+        The content of the file or an error message if the file doesn't exist.
+    """
     try:
         if not os.path.exists(path):
             return f"Error: File '{path}' does not exist."
@@ -14,7 +29,18 @@ def read_file(path: str) -> str:
         return f"Error reading file: {str(e)}"
 
 def write_file(path: str, content: str) -> str:
-    """Write content to a file. Overwrites if exists."""
+    """
+    Writes text content to a file.
+    
+    WARNING: This will overwrite the file if it already exists.
+    
+    Args:
+        path: Path to the file.
+        content: The string content to write.
+        
+    Returns:
+        Success or error message.
+    """
     try:
         with open(path, 'w', encoding='utf-8') as f:
             f.write(content)
@@ -32,8 +58,16 @@ def list_directory(path: str = ".") -> str:
 
 def run_shell_command(command: str) -> str:
     """
-    Run a shell command.
-    WARNING: Use with caution.
+    Executes a shell command and returns the output.
+    
+    WARNING: High-risk capability. Use with extreme caution.
+    This executes the command in a subprocess with a 10-second timeout.
+    
+    Args:
+        command: The shell command string to execute.
+        
+    Returns:
+        STDOUT and STDERR combined, or an error message.
     """
     try:
         result = subprocess.run(

@@ -1,9 +1,17 @@
+"""
+Core Todo Skills for Agents.
+
+This module exposes the functionality of the Todo application as "skills" that can be use by Agents.
+These functions wrap the underlying `FileStorage` and logic into string-in/string-out (or simple primitive)
+functions that are easy for an LLM or agent to invoke.
+"""
 from typing import List, Optional
 from src.todo.storage import FileStorage
 from src.todo.models import Task
 from src.todo.utils import now_iso
 
 # Shared storage instance for skills
+# Agents using these skills will operate on the same persistent file storage.
 _storage = FileStorage()
 
 def add_task(title: str, description: str = None, priority: str = "medium", tags: str = "") -> str:

@@ -5,6 +5,23 @@ from src.todo.utils import now_iso # Import now_iso
 
 @dataclass
 class Task:
+    """
+    Represents a single todo item in the system.
+    
+    This dataclass serves as the core data model. It automatically generates
+    unique IDs and creation timestamps for new tasks.
+    
+    Attributes:
+        title (str): The main summary of the task.
+        id (str): Unique UUID v4 identifier.
+        description (Optional[str]): Detailed notes about the task.
+        status (Literal['pending', 'completed']): Current state of execution.
+        priority (Optional[Literal['high', 'medium', 'low']]): Urgency level.
+        tags (List[str]): Arbitrary labels for categorization.
+        created_at (str): ISO 8601 timestamp of creation.
+        modified_at (Optional[str]): ISO 8601 timestamp of last update.
+        due_date (Optional[str]): Optional deadline.
+    """
     title: str
     id: str = field(default_factory=lambda: str(uuid.uuid4()))
     description: Optional[str] = None
@@ -16,6 +33,7 @@ class Task:
     due_date: Optional[str] = None
 
     def to_dict(self):
+        """Converts the task to a dictionary for JSON serialization."""
         return {
             "id": self.id,
             "title": self.title,
@@ -29,11 +47,11 @@ class Task:
         }
     
     def get_status_emoji(self) -> str:
-        """Get emoji representation of task status."""
+        """Returns a checkmark '✓' for completed tasks, space for pending."""
         return "✓" if self.status == "completed" else " "
     
     def get_priority_color(self) -> str:
-        """Get color name for task priority."""
+        """Returns a UI color string based on the task's priority."""
         if self.priority == "high":
             return "red"
         elif self.priority == "medium":
