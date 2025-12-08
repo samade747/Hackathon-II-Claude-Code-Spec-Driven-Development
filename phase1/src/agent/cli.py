@@ -1,7 +1,17 @@
 import sys
 from src.agent.manager import TodoManager
 
+"""
+Simple CLI entry point for interacting with the TodoManager agent.
+This provides a basic Read-Eval-Print Loop (REPL) for testing agent capabilities.
+"""
+
 def main():
+    """
+    Main entry point for the agent CLI.
+    
+    Supports both single-command mode (via arguments) and interactive mode.
+    """
     agent = TodoManager()
     
     # If args provided, process single command
