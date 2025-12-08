@@ -1,108 +1,97 @@
 # Project Prompt History — Phase I
 
-This document captures the conversational prompts used to build the system from scratch.
+This document captures the *actual* feel of the conversation used to generate this codebase. It reflects a realistic, iterative dialogue between a human developer and the AI.
 
-## 1. The Foundation: Data Models
-**User:**
-"Let's start building the Todo application. I need a solid data model to begin with.
-Create `src/todo/models.py` with a `Task` dataclass.
-It should have:
-- A UUID `id` generated automatically.
-- `title` and `description`.
-- `status` (defaulting to pending) and `priority` (high/medium/low).
-- A list of `tags`.
-- Timestamps for creation, modification, and due dates.
-Also, add some helper methods like `to_dict()` for saving, and `get_status_emoji()` because we'll want a nice UI later. Use Python's `dataclasses`."
+## Session 1: The Core App
 
-## 2. Storage Layer
+### Prompt 1: Getting Started
 **User:**
-"Great. Now we need a way to save these tasks.
-Create `src/todo/storage.py`.
-I want an abstract protocol called `StorageProtocol` so we can swap backends.
-Then implement two versions:
-1. `InMemoryStorage` for our tests.
-2. `FileStorage` that saves to a JSON file (default to `tasks.json`).
-Implement standard CRUD methods: `add_task`, `get_task`, `update_task`, `delete_task`, `list_tasks`, and a `search_tasks` that can filter by query or tags."
+"hey, i wanna build a todo app in python.
+can you start by making a model for a Task?
+put it in `src/todo/models.py`.
+it needs an id, title, description, status (pending/completed), priority (high/medium/low), and tags.
+oh, and timestamps for when it was created and stuff. use dataclasses."
 
-## 3. Utilities
+### Prompt 2: Adding Persistence
 **User:**
-"I see we need some helper functions for timestamps and validation.
-Create `src/todo/utils.py`.
-Add functions to:
-- Get the current time in ISO format (`now_iso`).
-- Validate priority strings.
-- Validate UUIDs.
-- Parse a comma-separated string of tags into a list.
-Make sure to add docstrings so we know how to use them."
+"cool. now i need to save these.
+make a storage module in `src/todo/storage.py`.
+i want to be able to save to a json file, but also support in-memory for tests.
+can you use a protocol or abstract class so we can swap it later?
+supports standard crud: add, get, list (with filters), update, delete."
 
-## 4. The CLI
+### Prompt 3: Helper Functions
 **User:**
-"Let's build a simple interface to test this.
-Create `src/todo/cli.py` using `argparse`.
-It needs commands for `add`, `list`, `update`, `delete`, and `complete`.
-For the `list` command, use the `rich` library to print a nice table with columns for Status, Title, Priority, and Due Date.
-Also support global flags like `--storage memory` or `--format json`."
+"actually, can you move the timestamp stuff and some validation logic to a utils file?
+`src/todo/utils.py`.
+need things like `now_iso()` and something to validate that the priority is actually one of the allowed values. also maybe a helper to parse tags from a string."
 
-## 5. Agent Architecture
+### Prompt 4: The CLI
 **User:**
-"Okay, the core app is working. Now let's build the Agent framework.
-Create `src/agent/base.py`.
-I need two main classes:
-1. `Skill`: This should wrap a python function. It needs a name, description, and a way to inspect the function's parameters automatically.
-2. `Agent`: This will be our base class. It has a name, a `persona` (which is just a system prompt string), and a list of `Skill`s. It needs an abstract `run(user_input)` method."
+"okay lets make a CLI to test this out.
+`src/todo/cli.py`.
+use argparse. commands: add, list, complete, delete.
+for the list command, can you make it look nice? maybe use that `rich` library to print a table?
+i want to see the status emoji and color-coded priorities."
 
-## 6. Basic Skills
-**User:**
-"Now let's bridge the Todo app to the Agent.
-Create `src/agent/skills.py`.
-I want you to wrap the `FileStorage` methods into simple, agent-friendly functions.
-Create functions like `add_task`, `list_tasks`, `complete_task` that take string inputs and return string messages (e.g., 'Task added successfully').
-These will be the tools our agent uses."
+## Session 2: The Agent Framework
 
-## 7. System Skills
+### Prompt 5: Basic Agent Structures
 **User:**
-"I want the agent to be able to do some system admin work too.
-Create `src/agent/sys_skills.py`.
-Add skills for `read_file`, `write_file`, `list_directory`, and `run_shell_command`.
-**Important**: Add a warning docstring to `run_shell_command` saying it's high-risk. We don't want the agent deleting things accidentally."
+"alright, the todo app works. now for the cool part. i want to wrap this in an agent system.
+create `src/agent/base.py`.
+i need a `Skill` class that wraps a python function, and an `Agent` class that has a name, a persona (system prompt), and a list of skills.
+the agent needs a `run` method that takes user input."
 
-## 8. The Manager Agent
+### Prompt 6: Making Skills
 **User:**
-"Let's create our first actual agents in `src/agent/manager.py`.
-First, `TodoManager`. Give it a persona of a 'helpful productivity partner'. It should be able to look at user input and decide which skill from `skills.py` to call.
-Second, `SysAdminAgent`. Give it a persona of a 'meticulous system administrator'. It should use the skills from `sys_skills.py`.
-Implement a matching logic (like checking the first word of the command) to route the request to the right function."
+"now let's turn the todo functions into skills the agent can use.
+create `src/agent/skills.py`.
+basically just wrap the storage methods (add, list, etc) but make them return nice strings that the agent can understand. like 'Task added with ID 123' instead of the object."
 
-## 9. Visionary Agents: Cloud Architect
+### Prompt 7: System Access
 **User:**
-"Now I want to get fancy. Let's create some 'Visionary' agents for advanced tasks.
-First, we need the skills. Create `src/agent/cloud_skills.py`.
-These shouldn't actually provision cloud resources (that's too dangerous for now), but they should generate *blueprints*.
-Write functions like `generate_kubernetes_deployment`, `generate_docker_compose`, and `generate_terraform_module`.
-They should take parameters like `app_name` or `replicas` and return a string containing the YAML or HCL code."
+"i want the agent to be able to read files and run shell commands too.
+put that in `src/agent/sys_skills.py`.
+be careful though, add a big warning to the shell command one.
+implement read, write, list dir, and run command."
 
-## 10. MCP Integration
+### Prompt 8: The Manager
 **User:**
-"I want this agent to be compatible with the Model Context Protocol (MCP).
-Create `src/agent/mcp_integration.py`.
-Build a mock `MCPClient` class. It doesn't need to be fully functional yet, but simulate methods for `connect_server`, `list_resources`, and `invoke_tool`.
-Make it simulate a connection where it discovers some dummy resources and tools so we can test the interface."
+"okay let's build the actual agents. `src/agent/manager.py`.
+create a `TodoManager` agent that uses the todo skills. give it a persona like 'helpful productivity assistant'.
+and a `SysAdminAgent` that uses the sys skills. persona: 'strict sysadmin'.
+write a simple run method that checks the command and calls the right skill."
 
-## 11. Advanced Agents Implementation
-**User:**
-"Now create `src/agent/advanced_agents.py` to house these new personas.
-I want:
-1. `CloudArchitectAgent`: The 'visionary builder'. It uses the cloud skills to generate infrastructure code.
-2. `MCPIntegrationAgent`: The 'universal adapter'. It uses the MCP client to talk to external tools.
-3. `IntelligenceOrchestratorAgent`: The 'conductor'. It doesn't do work itself but manages workflows and patterns.
-Give them really descriptive, inspiring docstrings and personas."
+## Session 3: Going Advanced
 
-## 12. The Enhanced TUI
+### Prompt 9: Cloud Blueprints
 **User:**
-"Finally, let's tie it all together with a professional UI.
-Create `src/agent/tui.py`.
-I want a 3-pane layout using `rich.layout`: Header (agent status), Main (chat history), and Footer (tips).
-It should be an interactive loop.
-- Allow typing commands like 'add ...' or 'switch' to change agents.
-- Show agent responses in colored panels (Green for success, Red for error).
-- Make it look premium and modern."
+"i want to add some 'visionary' agents later.
+start by creating `src/agent/cloud_skills.py`.
+these shouldn't actually touch the cloud yet, just generate code.
+like `generate_k8s_manifest`, `generate_terraform`, `generate_docker_compose`.
+just return the code as a string."
+
+### Prompt 10: MCP Stuff
+**User:**
+"have you heard of MCP? Model Context Protocol?
+mock up a client for it in `src/agent/mcp_integration.py`.
+just simulate connecting to a server and listing tools. i want my agent to be able to 'connect' to external tools later."
+
+### Prompt 11: The Visionaries
+**User:**
+"now create `src/agent/advanced_agents.py`.
+i want three high-level agents:
+1. CloudArchitect: uses the cloud skills. super visionary persona.
+2. MCPIntegrationAgent: uses the mcp client.
+3. IntelligenceOrchestrator: this one manages patterns and workflows.
+give them really flowery, impressive personas."
+
+### Prompt 12: The TUI
+**User:**
+"last thing. the cli is boring.
+make a real TUI in `src/agent/tui.py`.
+use `rich.layout`. i want a header, a main chat window, and a footer.
+make it interactive so i can chat with the agents.
+green panels for success messages, red for errors. make it look pro."
