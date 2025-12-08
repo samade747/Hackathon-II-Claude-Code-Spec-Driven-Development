@@ -5,6 +5,7 @@
 A **next-generation, AI-powered todo application** demonstrating **spec-driven development** with Claude Code, featuring advanced capabilities that go far beyond traditional todo apps.
 
 ---
+![Profile Views](https://komarev.com/ghpvc/?username=samade747&style=flat-square)
 
 ## 🚀 Phase I: Ultra-Advanced CLI Todo App
 
@@ -369,6 +370,7 @@ help
 ```
 
 ---
+![Profile Views](https://komarev.com/ghpvc/?username=samade747&style=flat-square)
 
 **🚀 Ready for Production • 🤖 AI-Powered • ☁️ Cloud-Native • 🧠 Intelligent**
 
